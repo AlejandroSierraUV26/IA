@@ -17,6 +17,7 @@ Información sobre los participantes de este proyecto:
 Correos:
 
 juan.castano.arango@correounivalle.edu.co
+
 juan.ramirez.agudelo@correounivalle.edu.co
 
 kevin.ramirez.torres@correounivalle.edu.co
