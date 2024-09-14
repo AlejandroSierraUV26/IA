@@ -21,6 +21,8 @@ _Correos:_
 
 - juan.castano.arango@correounivalle.edu.co
 
+- juan.ramirez.agudelo@correounivalle.edu.co
+
 - sierra.alejandro@correounivalle.edu.co
 
 - kevin.ramirez.torres@correounivalle.edu.co
