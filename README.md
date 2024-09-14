@@ -23,6 +23,8 @@ _Correos:_
 
 - juan.ramirez.agudelo@correounivalle.edu.co
 
+- alejandro.sierra.betancourt@correounivalle.edu.co
+
 - kevin.ramirez.torres@correounivalle.edu.co
 
 _Github:_
