@@ -16,6 +16,8 @@ Se tendrá en cuenta lo siguiente:
 
 - El n deberá ser configurable, es decir que si nosotros decidimos que en esta ejecución el cambio se efectue cada 2 expansiones, y en la siguiente se haga cada 4.
 
+El lenguaje a usar será *python* con librerías Networkx, Numpy y Pygame.
+
 _Información sobre los participantes de este proyecto:_
 
 - Juan Pablo Castaño Arango - 2259487
