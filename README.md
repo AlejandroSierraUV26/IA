@@ -4,8 +4,17 @@ Descripción sobre el proyecto:
 
 Arboles Locos, se desarrollará un programa en Python en el cual se tendrá un ratón y un queso. El objetivo de este programa es que el ratón encuentre el queso usando búsquedas no informadas. Se tienen 5 tipos de búsquedas no informadas existentes, la idea con este proyecto es ejecutarlas todas de una manera técnica informada Avara (no se implementará A*).
 
+Se tendrá en cuenta lo siguiente:
 
+- El ratón empieza y debe decidicir si sube o baja, ahí el algoritmo hará una selección aleatorio de alguna de las 6 estrategias para empezar.
 
+- Se hará implementación de una interfaz gráfica en donde se pueda observar el nombre de la estrategia seleccionada y el cómo se va expandiendo el arbol.
+
+- Luego de n expansiaones, ahora la búsqueda se hará por otra de las 5 estrategias (no se puede repetir una estrategia que ya haa sido seleccionada anteriormente. Seguirá así hasta que las 6 estrategias se hayan aplicado o se haya terminado ya de encontrar al ratón.
+
+- Si no se encontró una solución luego de explorar todas las estrategias, el algoritmo se detendrá e indicará que no se ha encontrado solución alguna.
+
+- El n deberá ser configurable, es decir que si nosotros decidimos que en esta ejecución el cambio se efectue cada 2 expansiones, y en la siguiente se haga cada 4.
 
 _Información sobre los participantes de este proyecto:_
 
