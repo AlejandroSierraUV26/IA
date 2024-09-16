@@ -28,7 +28,7 @@ Se tendrá en cuenta lo siguiente:
 
 
 ## Participantes del Proyecto
-- [Juan Pablo Castaño Arango]([mailto:correo@ejemplo.com](https://github.com/ElPachFire))- <img src="https://github.com/ElPachFire.png" width="30" height="30" alt="Juan Pablo Castaño Arango">
+- **<a href="https://github.com/ElPachFire">Juan Pablo Castaño Arango</a>** - <img src="https://github.com/ElPachFire.png" width="30" height="30" alt="Juan Pablo Castaño Arango">
 - **Juan Manuel Ramirez Agudelo** - <img src="https://github.com/JMCoC.png" width="30" height="30" alt="Juan Manuel Ramirez Agudelo">
 - **Alejandro Sierra Betancourt** - <img src="https://github.com/AlejandroSierraUV26.png" width="30" height="30" alt="Alejandro Sierra Betancourt">
 - **Kevin Steven Ramirez Torres** - <img src="https://github.com/svenramirez.png" width="30" height="30" alt="Kevin Steven Ramirez Torres">
