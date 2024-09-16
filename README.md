@@ -16,7 +16,15 @@ Se tendrá en cuenta lo siguiente:
 
 - El n deberá ser configurable, es decir que si nosotros decidimos que en esta ejecución el cambio se efectue cada 2 expansiones, y en la siguiente se haga cada 4.
 
-El lenguaje a usar será *python* con librerías como Networkx, Numpy y Pygame.
+### Tecnologías Utilizadas
+
+- **Lenguaje de Programación:** Python - <img src="https://www.python.org/static/community_logos/python-logo-inkscape.svg" width="100" height="40" alt="Python Logo">
+- **Librerías:**
+  - **Networkx** - <img src="https://avatars.githubusercontent.com/u/388785?s=200&v=4" width="50" height="50" alt="Networkx Logo">
+  - **Numpy** - <img src="https://numpy.org/images/logo.svg" width="50" height="50" alt="Numpy Logo">
+  - **Pygame** - <img src="https://avatars.githubusercontent.com/u/20628127?s=200&v=4" width="50" height="50" alt="Pygame Logo">
+
+
 
 
 ## Participantes del Proyecto
