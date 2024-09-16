@@ -21,10 +21,11 @@ El lenguaje a usar será *python* con librerías como Networkx, Numpy y Pygame.
 
 ## Participantes del Proyecto
 
-- **Juan Pablo Castaño Arango** - ![Juan Pablo Castaño Arango](https://github.com/ElPachFire.png?size=10)
-- **Juan Manuel Ramirez Agudelo** - ![Juan Manuel Ramirez Agudelo](https://github.com/JMCoC.png?size=10)
-- **Alejandro Sierra Betancourt** - ![Alejandro Sierra Betancourt](https://github.com/AlejandroSierraUV26.png?size=10)
-- **Kevin Steven Ramirez Torres** - ![Kevin Steven Ramirez Torres](https://github.com/svenramirez.png?size=10)
+- **Juan Pablo Castaño Arango** - <img src="https://github.com/ElPachFire.png" width="30" height="30" alt="Juan Pablo Castaño Arango">
+- **Juan Manuel Ramirez Agudelo** - <img src="https://github.com/JMCoC.png" width="30" height="30" alt="Juan Manuel Ramirez Agudelo">
+- **Alejandro Sierra Betancourt** - <img src="https://github.com/AlejandroSierraUV26.png" width="30" height="30" alt="Alejandro Sierra Betancourt">
+- **Kevin Steven Ramirez Torres** - <img src="https://github.com/svenramirez.png" width="30" height="30" alt="Kevin Steven Ramirez Torres">
+
 
 
 
