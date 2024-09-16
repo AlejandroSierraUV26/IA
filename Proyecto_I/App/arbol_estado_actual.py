@@ -3,81 +3,40 @@ Debemos constuir el arbol a partir de los movimientos posibles,
 La informacion esta almacenada en el archivo movimientos.txt
 
 """
-
+import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 import ast 
 import pygame as pg
 
-
-def procesar_elemento(elemento):
-    """Función recursiva para procesar tuplas y listas anidadas"""
-    if isinstance(elemento, tuple) and len(elemento) == 2:
-        return elemento  # Devolver la tupla
-    elif isinstance(elemento, list):
-        # Procesar cada elemento de la lista de manera recursiva
-        return [procesar_elemento(e) for e in elemento]
-    else:
-        raise ValueError(f"Formato inválido encontrado: {elemento}")
-
-def leer_movimientos():
-    with open("movimientos.txt", "r") as archivo:
-        contenido = archivo.read().splitlines()  # Leer cada línea sin el salto de línea
-        movimientos = []
-        
-        for dato in contenido:
-            if dato:  # Verificar si la línea no está vacía
-                try:
-                    # Intentar convertir la línea a una estructura Python (tupla o lista de tuplas)
-                    elemento = ast.literal_eval(dato)
-                    
-                    # Procesar la estructura, permitiendo listas anidadas
-                    procesado = procesar_elemento(elemento)
-                    movimientos.append(procesado)
-                
-                except (ValueError, SyntaxError):
-                    print(f"Error de conversión en: {dato}")
-        
-    return movimientos
-
-
-
+def leer_arbol():
+    with open("arbol.txt", "r") as archivo:
+        contenido = archivo.read()
+        contenido = contenido.split("-")
+        inicio = contenido[0]
+        nodos = contenido[1].split("\n")
+        aristas = contenido[2].split("\n")
+        inicio = ast.literal_eval(inicio)
+        nodos = [ast.literal_eval(nodo) for nodo in nodos if nodo]
+        aristas = [ast.literal_eval(arista) for arista in aristas if arista]    
+    return inicio, nodos, aristas
 
 def construir_arbol():
-    movimientos = leer_movimientos()
+    movimientos = leer_arbol()
     G = nx.Graph()
 
     # Agregar el nodo raíz
-    raiz = (0, 0)
-    G.add_node(raiz)
-
-    def agregar_nodos(nodo_actual, mov):
-        """Función recursiva para agregar nodos al grafo"""
-        if isinstance(mov, tuple):  # Si es una tupla individual
-            G.add_node(mov)
-            G.add_edge(nodo_actual, mov)
-        elif isinstance(mov, list):  # Si es una lista (puede contener tuplas o sublistas)
-            for submov in mov:
-                if isinstance(submov, tuple):  # Procesar cada tupla en la lista
-                    G.add_node(submov)
-                    G.add_edge(nodo_actual, submov)
-                    nodo_actual = submov  # Actualizamos el nodo actual para los siguientes hijos
-                elif isinstance(submov, list):  # Procesar sublistas recursivamente
-                    for item in submov:
-                        if isinstance(item, tuple):
-                            G.add_node(item)
-                            G.add_edge(nodo_actual, item)
-                        elif isinstance(item, list):
-                            agregar_nodos(nodo_actual, item)
-
-    # Comenzar a procesar cada movimiento
-    for mov in movimientos:
-        if isinstance(mov, tuple):
-            G.add_node(mov)
-            G.add_edge(raiz, mov)
-        elif isinstance(mov, list):
-            agregar_nodos(raiz, mov)
-
+    G.add_node(movimientos[0])
+    
+    for nodo in movimientos[1]:
+        G.add_node(nodo)
+    
+    for arista in movimientos[2]:
+        G.add_edge(arista[0], arista[1])
+    
+    plt.figure()
+    nx.draw(G, with_labels=True)
+    plt.show()
     return G
 
 
@@ -144,7 +103,7 @@ def dibujar_arbol():
 
     
     
-dibujar_arbol()
+print(construir_arbol())
 
  
 

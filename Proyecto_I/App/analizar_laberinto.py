@@ -1,4 +1,5 @@
 import numpy
+import networkx as nx
 """
 Este script se encarga de analizar el laberinto los posibles movimientos que se pueden realizar en el laberinto, apartir del punto donde se encuentra
 
@@ -25,6 +26,8 @@ def comprobar_movimientos(laberinto):
 
     x, y = inicio
     movimientos = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]  # arriba, abajo, izquierda, derecha
+    
+    
 
     for mov in movimientos:
         i, j = mov
@@ -32,10 +35,16 @@ def comprobar_movimientos(laberinto):
             elementos.append(mov)
 
     return elementos
-
+def generar_arbol(laberinto):
+    arbol = nx.Graph()
+    movimientos = comprobar_movimientos(laberinto)
     
-    
-    inicio = buscar_inicio(laberinto)
+    for mov in movimientos:
+        arbol.add_node(mov)
+        arbol.add_edge(buscar_inicio(laberinto), mov)
+    print(arbol.nodes())
+    print(arbol.edges())
+    return arbol
     
 def buscar_inicio(laberinto):
     for i in range(len(laberinto)):
@@ -44,13 +53,20 @@ def buscar_inicio(laberinto):
                 return (i, j)
     return None
 
-def guardar_movimientos(movimientos):
-    movimientos = comprobar_movimientos(leer_laberinto())
-    with open("movimientos.txt", "w") as archivo:
-        for mov in movimientos:
-            archivo.write(f"{mov}\n")
+def guardar_arbol(arbol):
+    laberinto = leer_laberinto()
+    with open("arbol.txt", "w") as archivo:
+        archivo.write(f"{buscar_inicio(laberinto)}\n")
+        archivo.write("-\n")
+        for nodo in arbol.nodes():
+            archivo.write(f"{nodo}\n")
+        archivo.write("-\n")
+        for arista in arbol.edges():
+            archivo.write(f"{arista}\n")
+    print("Arbol guardado en arbol.txt")
     
+arbol = generar_arbol(leer_laberinto())
 
-print(numpy.array(leer_laberinto()))
-guardar_movimientos(comprobar_movimientos(leer_laberinto()))
-print(comprobar_movimientos(leer_laberinto()))
+guardar_arbol(arbol)
+    
+    
