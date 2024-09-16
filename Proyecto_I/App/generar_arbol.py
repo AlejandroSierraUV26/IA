@@ -4,7 +4,7 @@ import sys
 
 
 """
-
+    
 Fecha : 2024-09-06
 Autor : Alejandro Sierra 
 Tema : Generar un árbol jerárquico con NetworkX y visualizarlo con Pygame
