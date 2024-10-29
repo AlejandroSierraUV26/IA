@@ -1,6 +1,6 @@
 <span style ="color:blue">_Inteligencia Artificial 2024-2_</span> 
 
-Descripción sobre el proyecto:
+- Descripción sobre el proyecto:
 
 Arboles Locos, se desarrollará un programa en Python en el cual se tendrá un ratón y un queso. El objetivo de este programa es que el ratón encuentre el queso usando búsquedas no informadas. Se tienen 5 tipos de búsquedas no informadas existentes, la idea con este proyecto es ejecutarlas todas de una manera técnica informada Avara (no se implementará A*).
 
@@ -28,9 +28,33 @@ Se tendrá en cuenta lo siguiente:
 
 
 ## Participantes del Proyecto
-- **<a href="https://github.com/ElPachFire">Juan Pablo Castaño Arango</a>** - <img src="https://github.com/ElPachFire.png" width="30" height="30" alt="Juan Pablo Castaño Arango">
+
+- **Juan Pablo Castaño Arango** - <img src="https://github.com/ElPachFire.png" width="30" height="30" alt="Juan Pablo Castaño Arango">
 - **Juan Manuel Ramirez Agudelo** - <img src="https://github.com/JMCoC.png" width="30" height="30" alt="Juan Manuel Ramirez Agudelo">
 - **Alejandro Sierra Betancourt** - <img src="https://github.com/AlejandroSierraUV26.png" width="30" height="30" alt="Alejandro Sierra Betancourt">
 - **Kevin Steven Ramirez Torres** - <img src="https://github.com/svenramirez.png" width="30" height="30" alt="Kevin Steven Ramirez Torres">
+
+
+
+
+_Correos:_
+
+- juan.castano.arango@correounivalle.edu.co
+
+- juan.ramirez.agudelo@correounivalle.edu.co
+
+- sierra.alejandro@correounivalle.edu.co
+
+- kevin.ramirez.torres@correounivalle.edu.co
+
+_Github:_
+
+- @ElPachFire
+  
+- @JMCoC
+  
+- @AlejandroSierraUV26
+  
+- @Svanramirez
 
 ![Badge en Desarollo](https://img.shields.io/badge/STATUS-EN%20DESAROLLO-blue)
