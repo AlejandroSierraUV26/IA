@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import time
 from pygame.locals import *
+import heapq  # Para manejar la cola de prioridad
 
 # Tamaño de la ventana
 WIDTH, HEIGHT = 500, 500
@@ -32,28 +33,41 @@ fin_bg = pygame.transform.scale(fin_bg, (WIDTH, HEIGHT))
 columnas, filas = 10, 10
 
 # Matriz del laberinto
-mapa = np.array([[0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                 [0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
-                 [1, 1, 0, 1, 1, 1, 0, 0, 0, 1],
-                 [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                 [1, 0, 1, 1, 1, 1, 0, 0, 0, 1],
-                 [1, 0, 0, 0, 0, 1, 1, 1, 0, 1],
-                 [1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
-                 [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
-                 [1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]])
+columnas, filas = 15, 15
+mapa = np.array([
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+    [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+    [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+])
 
-# Posición inicial del robot
+
+# Posiciones
 pos_x, pos_y = 0, 0
-
-# Dirección inicial del robot
 direccion = 'derecha'
+salida_x, salida_y = 11,5
 
-# Posición de salida del laberinto
-salida_x, salida_y = 9, 9
+# Variables para UCS
+priority_queue = []
+heapq.heappush(priority_queue, (0, pos_x, pos_y))  # Inicial con costo 0
+costs = {(pos_x, pos_y): 0}  # Costos mínimos
 
-visited = set()  # Para registrar posiciones visitadas
-stack = [(pos_x, pos_y)]  # Pila para la búsqueda en profundidad y backtracking
+# Conjunto para registrar las posiciones visitadas
+visited = set()
+
+# Historial de posiciones para permitir retrocesos
+backtrack_stack = []
 
 """-------------------------------------------------
 Función que dibuja todos los elementos en el mapa
@@ -88,62 +102,72 @@ def map_draw():
         screen.blit(fin_bg, (0, 0))
 
 """-------------------------------------------------
-Función para movimiento DFS con backtracking
+Función para movimiento UCS con Backtracking
 -------------------------------------------------"""
-def dfs_move():
+def ucs_move():
     global pos_x, pos_y, direccion, fin
     
-    if not stack or fin:
+    if not priority_queue or fin:
         return
     
-    x, y = stack[-1]
+    # Tomar la posición con el menor costo acumulado
+    current_cost, x, y = heapq.heappop(priority_queue)
     
     # Verificar si ya se ha llegado a la meta
     if (x, y) == (salida_x, salida_y):
         fin = True
         return
     
-    # Registrar la posición como visitada
-    visited.add((x, y)) 
+    # Si ya se visitó, continúa (esto evita procesar el mismo nodo varias veces)
+    if (x, y) in visited:
+        return
+
+    # Añadir posición actual a visitados y al historial de backtracking
+    visited.add((x, y))
+    backtrack_stack.append((x, y))
     
-    # Probar movimientos en profundidad con backtracking
+    # Definir movimientos posibles
     directions = [((0, -1), 'arriba'), ((0, 1), 'abajo'), ((-1, 0), 'izquierda'), ((1, 0), 'derecha')]
-    moved = False
+    has_valid_moves = False  # Marca si hay movimientos posibles desde la posición actual
+
     for (dx, dy), dir in directions:
         nx, ny = x + dx, y + dy
+        new_cost = current_cost + 1
+        
+        # Verificar límites, caminos válidos, y que no haya ciclos
         if 0 <= nx < columnas and 0 <= ny < filas and mapa[ny, nx] == 0 and (nx, ny) not in visited:
-            stack.append((nx, ny))
-            pos_x, pos_y = nx, ny
-            direccion = dir
-            moved = True
-            break
-    
-    # Si no se puede mover a ninguna dirección, retrocede
-    if not moved:
-        stack.pop()
-        if stack:  # Verifica que aún haya nodos en la pila
-            pos_x, pos_y = stack[-1]  # Retrocede a la posición anterior
+            # Solo agrega a la cola si es un movimiento válido
+            costs[(nx, ny)] = new_cost
+            heapq.heappush(priority_queue, (new_cost, nx, ny))
+            has_valid_moves = True  # Hay al menos un movimiento válido desde aquí
 
-
-
+    # Actualizar posición y dirección si hay movimiento válido
+    if has_valid_moves:
+        pos_x, pos_y = x, y
+        direccion = dir
+    else:
+        # Retrocede si no hay movimientos válidos desde esta posición
+        if backtrack_stack:
+            backtrack_stack.pop()  # Elimina la última posición
+            if backtrack_stack:  # Verifica que aún haya historial
+                pos_x, pos_y = backtrack_stack[-1]  # Regresa a la última posición disponible
 
 """-------------------------------------------------
 Bucle principal del programa
 -------------------------------------------------"""
-# Bucle principal del programa
-pygame.init()  
+pygame.init()
 running = True
 fin = False
 
 while running:
-    time.sleep(0.1)
+    time.sleep(0.4)
     for event in pygame.event.get():
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             running = False
     
-    # Llamar a la función de movimiento DFS continuamente si no se ha llegado a la meta
+    # Llamar a la función de movimiento UCS continuamente si no se ha llegado a la meta
     if not fin:
-        dfs_move()
+        ucs_move()
     
     # Verifica si el robot ha llegado a la posición de salida
     if not fin and pos_x == salida_x and pos_y == salida_y:

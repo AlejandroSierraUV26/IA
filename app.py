@@ -1,112 +1,147 @@
 import numpy as np
 import pygame
+import random
 import time
 from pygame.locals import *
-import heapq  # Para manejar la cola de prioridad
+from collections import deque
+import heapq
 
 # Tamaño de la ventana
 WIDTH, HEIGHT = 500, 500
 
 # Crear la ventana
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-
-# Definir título a la ventana
 pygame.display.set_caption("Juego de Laberintos")
 
-# Cargar las imágenes
-pared = pygame.image.load('Images/pared1.png')
-suelo = pygame.image.load('Images/ground1.png')
-robot = pygame.image.load('Images/robot1.png')
-robot_left = pygame.image.load('Images/robot1_left.png')
-out1 = pygame.image.load('Images/out1.png')
-fin_bg = pygame.image.load('Images/bg_winner.png')
+# Cargar y escalar imágenes
+pared = pygame.transform.scale(pygame.image.load('Images/pared1.png'), (50, 50))
+suelo = pygame.transform.scale(pygame.image.load('Images/ground1.png'), (50, 50))
+robot = pygame.transform.scale(pygame.image.load('Images/robot1.png'), (50, 50))
+robot_left = pygame.transform.scale(pygame.image.load('Images/robot1_left.png'), (50, 50))
+out1 = pygame.transform.scale(pygame.image.load('Images/out1.png'), (50, 50))
+fin_bg = pygame.transform.scale(pygame.image.load('Images/bg_winner.png'), (WIDTH, HEIGHT))
 
-# Escala de las imágenes
-pared = pygame.transform.scale(pared, (50, 50))
-suelo = pygame.transform.scale(suelo, (50, 50))
-robot = pygame.transform.scale(robot, (50, 50))
-robot_left = pygame.transform.scale(robot_left, (50, 50))
-out1 = pygame.transform.scale(out1, (50, 50))
-fin_bg = pygame.transform.scale(fin_bg, (WIDTH, HEIGHT))
+# Parámetros del laberinto
+columnas, filas = 15, 15
+mapa = np.array([
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+    [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+    [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+])
 
-# Cantidad de columnas y filas
-columnas, filas = 10, 10
-
-# Matriz del laberinto
-mapa = np.array([[0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                 [0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
-                 [1, 1, 0, 1, 1, 1, 0, 0, 0, 1],
-                 [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                 [1, 0, 1, 1, 1, 1, 0, 0, 0, 1],
-                 [1, 0, 0, 0, 0, 1, 1, 1, 0, 1],
-                 [1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
-                 [1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
-                 [1, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-                 [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]])
-
-# Posición inicial del robot
+# Posiciones
 pos_x, pos_y = 0, 0
-
-# Dirección inicial del robot
 direccion = 'derecha'
+salida_x, salida_y = 11, 5
 
-# Posición de salida del laberinto
-salida_x, salida_y = 9, 9
+# ! Variables de control
+visited = set() # amplitud, 
 
-# Variables para UCS
-priority_queue = []
-heapq.heappush(priority_queue, (0, pos_x, pos_y))  # Inicial con costo 0
-costs = {(pos_x, pos_y): 0}  # Costos mínimos
+queue = deque([((pos_x, pos_y), [(pos_x, pos_y)])])  # Cola para BFS # Amplitud
 
-# Conjunto para registrar las posiciones visitadas
-visited = set()
+failed_paths = set()  # Guarda caminos completos bloqueados
 
-# Historial de posiciones para permitir retrocesos
-backtrack_stack = []
+decision_points = []  # Guarda puntos de decisión
+
+costs = {(pos_x, pos_y): 0}  # Costo
+
+priority_queue = [(0, (pos_x, pos_y), [(pos_x, pos_y)])]  # Cola de prioridad para el algoritmo de costo
+
+
+
 
 """-------------------------------------------------
 Función que dibuja todos los elementos en el mapa
 -------------------------------------------------"""
 def map_draw():
-    # Usar np.where para crear máscaras
     pared_mask = np.where(mapa == 1, 1, 0)
     suelo_mask = np.where(mapa == 0, 1, 0)
-    
-    # Tamaño de una celda en la ventana
     cell_width = WIDTH // columnas
     cell_height = HEIGHT // filas
     
-    # Dibujar imágenes de "robot" y "pared" usando las máscaras
     for fil, col in np.argwhere(pared_mask == 1):
         screen.blit(pared, (col * cell_width, fil * cell_height))
     
     for fil, col in np.argwhere(suelo_mask == 1):
         screen.blit(suelo, (col * cell_width, fil * cell_height))
     
-    # Dibuja al robot en función de su dirección
+    # Dibuja al robot
     if direccion == 'derecha' or direccion == 'arriba' or direccion == 'abajo':
         screen.blit(robot, (pos_x * cell_width, pos_y * cell_height))
     elif direccion == 'izquierda':
         screen.blit(robot_left, (pos_x * cell_width, pos_y * cell_height))
     
-    # Dibujar la salida en la posición 9,9 del mapa
+    # Dibujar la salida
     screen.blit(out1, (salida_x * cell_width, salida_y * cell_height))
     
+    # Fondo de finalización
     if fin:
-        # Cuando el robot llega a la salida, dibuja la imagen de fondo "fin_bg"
         screen.blit(fin_bg, (0, 0))
 
 """-------------------------------------------------
-Función para movimiento UCS con Backtracking
+Función para movimiento BFS evitando caminos previos
 -------------------------------------------------"""
-def ucs_move():
-    global pos_x, pos_y, direccion, fin
+# Amplitud
+# Costo
+# Iterativa
+# Profundidad
+# Profundidad limitada
+
+def amplitud():
+    global pos_x, pos_y, direccion, fin, queue, visited, decision_points
+    
+    if not queue:
+        reset_game("amplitud")  # Reinicia el juego si no hay movimientos válidos
+        return
+    
+    (x, y), path = queue.popleft()
+    
+    if (x, y) == (salida_x, salida_y):
+        fin = True
+        return
+    
+    visited.add((x, y))
+    
+    directions = [((0, -1), 'arriba'), ((0, 1), 'abajo'), ((-1, 0), 'izquierda'), ((1, 0), 'derecha')]
+    possible_moves = []
+    
+    for (dx, dy), dir in directions:
+        nx, ny = x + dx, y + dy
+        if (nx, ny) not in failed_paths and 0 <= nx < columnas and 0 <= ny < filas and mapa[ny, nx] == 0 and (nx, ny) not in visited:
+            possible_moves.append(((nx, ny), dir))
+    
+    # Determinar si el nodo actual es un punto de decisión
+    if len(possible_moves) > 1:
+        decision_points.append((x, y))
+    
+    if possible_moves:
+        (nx, ny), dir = possible_moves[0]
+        queue.append(((nx, ny), path + [(nx, ny)]))
+        pos_x, pos_y = nx, ny
+        direccion = dir
+    else:
+        # Si está en un callejón sin salida, marca el camino como fallido
+        failed_paths.update(path)
+def costo():
+    global pos_x, pos_y, direccion, fin, visited, priority_queue, decision_points, costs
     
     if not priority_queue or fin:
         return
     
     # Tomar la posición con el menor costo acumulado
-    current_cost, x, y = heapq.heappop(priority_queue)
+    current_cost, (x, y), path = heapq.heappop(priority_queue)
     
     # Verificar si ya se ha llegado a la meta
     if (x, y) == (salida_x, salida_y):
@@ -117,9 +152,8 @@ def ucs_move():
     if (x, y) in visited:
         return
 
-    # Añadir posición actual a visitados y al historial de backtracking
+    # Añadir posición actual a visitados
     visited.add((x, y))
-    backtrack_stack.append((x, y))
     
     # Definir movimientos posibles
     directions = [((0, -1), 'arriba'), ((0, 1), 'abajo'), ((-1, 0), 'izquierda'), ((1, 0), 'derecha')]
@@ -133,7 +167,7 @@ def ucs_move():
         if 0 <= nx < columnas and 0 <= ny < filas and mapa[ny, nx] == 0 and (nx, ny) not in visited:
             # Solo agrega a la cola si es un movimiento válido
             costs[(nx, ny)] = new_cost
-            heapq.heappush(priority_queue, (new_cost, nx, ny))
+            heapq.heappush(priority_queue, (new_cost, (nx, ny), path + [(nx, ny)]))
             has_valid_moves = True  # Hay al menos un movimiento válido desde aquí
 
     # Actualizar posición y dirección si hay movimiento válido
@@ -142,37 +176,113 @@ def ucs_move():
         direccion = dir
     else:
         # Retrocede si no hay movimientos válidos desde esta posición
-        if backtrack_stack:
-            backtrack_stack.pop()  # Elimina la última posición
-            if backtrack_stack:  # Verifica que aún haya historial
-                pos_x, pos_y = backtrack_stack[-1]  # Regresa a la última posición disponible
+        if path:
+            pos_x, pos_y = path[-1]  # Regresa a la última posición disponible
+
+    
+    
+# def iterativa():
+#     # Realiza el movimiento DFS
+#     pass
+def profundidad():
+    global pos_x, pos_y, direccion, fin, visited, queue, decision_points
+    
+    if not queue or fin:
+        reset_game("profundidad")
+        return
+    
+    (x, y), path = queue.pop()
+    
+    # Verificar si ya se ha llegado a la meta
+    if (x, y) == (salida_x, salida_y):
+        fin = True
+        return
+    
+    # Registrar la posición como visitada
+    visited.add((x, y))
+    
+    # Probar movimientos en profundidad con backtracking
+    directions = [((0, -1), 'arriba'), ((0, 1), 'abajo'), ((-1, 0), 'izquierda'), ((1, 0), 'derecha')]
+    moved = False
+    possible_moves = []
+    for (dx, dy), dir in directions:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < columnas and 0 <= ny < filas and mapa[ny, nx] == 0 and (nx, ny) not in visited:
+            queue.append(((nx, ny), path + [(nx, ny)]))
+            possible_moves.append(((nx, ny), dir))
+            moved = True
+            break
+    
+    # Si no se puede mover a ninguna dirección, retrocede
+    if not moved:
+        if queue:  # Verifica que aún haya nodos en la cola
+            (pos_x, pos_y), _ = queue[-1]  # Retrocede a la posición anterior
+    
+    # Determinar si el nodo actual es un punto de decisión
+    if len(possible_moves) > 1:
+        decision_points.append((x, y))
+    
+    if possible_moves:
+        (nx, ny), dir = possible_moves[0]
+        queue.append(((nx, ny), path + [(nx, ny)]))
+        pos_x, pos_y = nx, ny
+        direccion = dir
+    else:
+        # Si está en un callejón sin salida, marca el camino como fallido
+        failed_paths.update(path)
+# def profundidad_limitada():
+#     # Realiza el movimiento DFS con límite de profundidad
+#     pass
+
+def reset_game(algortimo):
+    global pos_x, pos_y, visited, queue, decision_points
+    if algortimo == 'amplitud':
+        
+        pos_x, pos_y = decision_points.pop() if decision_points else (0, 0)
+        visited.clear()
+        queue = deque([((pos_x, pos_y), [(pos_x, pos_y)])])
+    if algortimo == 'profundidad':
+        pos_x, pos_y = decision_points.pop() if decision_points else (0, 0)
+        visited.clear()
+        queue = deque([((pos_x, pos_y), [(pos_x, pos_y)])])
+        
+    
 
 """-------------------------------------------------
 Bucle principal del programa
 -------------------------------------------------"""
-pygame.init()
+pygame.init()  
 running = True
-fin = False
+fin = False  # Variable de fin del juego
+
+n = 5  # Número de veces que quieres ejecutar el algoritmo
+movimientos_realizados = 0  # Contador de movimientos
+
 
 while running:
-    time.sleep(1)
     for event in pygame.event.get():
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             running = False
-    
-    # Llamar a la función de movimiento UCS continuamente si no se ha llegado a la meta
-    if not fin:
-        ucs_move()
-    
-    # Verifica si el robot ha llegado a la posición de salida
-    if not fin and pos_x == salida_x and pos_y == salida_y:
-        fin = True
-    
-    # Función de dibujo
-    map_draw()
+            
+    # Limpia la pantalla
+    screen.fill((0, 0, 0))
 
-    # Actualizar la ventana
+    map_draw()  # Dibuja el mapa
     pygame.display.flip()
-    
-# Cerrar Pygame
+    time.sleep(0.5)  # Tiempo de espera para observar los movimientos
+    algoritmo_seleccionado = random.choice([amplitud, profundidad, costo])
+    for i in range(3):
+        if not fin and movimientos_realizados < n:
+            # Ejecuta el algoritmo seleccionado una vez
+            print(algoritmo_seleccionado.__name__)
+            algoritmo_seleccionado()  # Ejecuta el algoritmo una vez
+            movimientos_realizados += 1  # Aumenta el contador de movimientos
+            print(f"Movimientos realizados: {movimientos_realizados}/{n}")
+            
+        if movimientos_realizados >= n:
+            print("Se han alcanzado el número máximo de movimientos.")
+            movimientos_realizados = 0
+            # Aquí puedes agregar la lógica para cambiar de algoritmo o reiniciar, si lo deseas.
+    print()
+
 pygame.quit()
