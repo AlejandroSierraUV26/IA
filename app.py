@@ -322,7 +322,7 @@ while running:
     pygame.display.flip()
     time.sleep(0.8)  # Tiempo de espera para observar los movimientos
     if movimientos_realizados == 0:
-        algoritmo_seleccionado = random.choice([amplitud])
+        algoritmo_seleccionado = random.choice([costo])
         if algoritmo_seleccionado != costo:
             costo_t += 1 
             costs[pos_x, pos_y] = costo_t
