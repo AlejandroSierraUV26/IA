@@ -104,7 +104,7 @@ def dfs_limited_depth_move():
     
     if (x, y) == (salida_x, salida_y):
         fin = True
-        return
+        return      
     
     visited.add((x, y))
     

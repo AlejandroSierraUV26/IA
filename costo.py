@@ -87,7 +87,16 @@ def map_draw():
     
     for fil, col in np.argwhere(suelo_mask == 1):
         screen.blit(suelo, (col * cell_width, fil * cell_height))
-    
+
+    # Dibuja las líneas de los caminos tomados
+    if len(backtrack_stack) > 1:
+        for i in range(len(backtrack_stack) - 1):
+            start_pos = (backtrack_stack[i][0] * cell_width + cell_width // 2,
+                         backtrack_stack[i][1] * cell_height + cell_height // 2)
+            end_pos = (backtrack_stack[i + 1][0] * cell_width + cell_width // 2,
+                       backtrack_stack[i + 1][1] * cell_height + cell_height // 2)
+            pygame.draw.line(screen, (0, 255, 0), start_pos, end_pos, 3)  # Color verde y grosor de 3px
+
     # Dibuja al robot en función de su dirección
     if direccion == 'derecha' or direccion == 'arriba' or direccion == 'abajo':
         screen.blit(robot, (pos_x * cell_width, pos_y * cell_height))
@@ -101,57 +110,68 @@ def map_draw():
         # Cuando el robot llega a la salida, dibuja la imagen de fondo "fin_bg"
         screen.blit(fin_bg, (0, 0))
 
+
 """-------------------------------------------------
 Función para movimiento UCS con Backtracking
 -------------------------------------------------"""
-def ucs_move():
-    global pos_x, pos_y, direccion, fin
-    
-    if not priority_queue or fin:
-        return
-    
-    # Tomar la posición con el menor costo acumulado
-    current_cost, x, y = heapq.heappop(priority_queue)
-    
-    # Verificar si ya se ha llegado a la meta
-    if (x, y) == (salida_x, salida_y):
-        fin = True
-        return
-    
-    # Si ya se visitó, continúa (esto evita procesar el mismo nodo varias veces)
-    if (x, y) in visited:
-        return
+# Lista para almacenar el camino paso a paso desde la posición actual al nodo de menor costo
+path = []
 
-    # Añadir posición actual a visitados y al historial de backtracking
-    visited.add((x, y))
-    backtrack_stack.append((x, y))
+def find_path(x, y, end_x, end_y):
+    """Encuentra el camino al nodo de menor costo y lo guarda en la lista 'path'."""
+    global path
     
-    # Definir movimientos posibles
-    directions = [((0, -1), 'arriba'), ((0, 1), 'abajo'), ((-1, 0), 'izquierda'), ((1, 0), 'derecha')]
-    has_valid_moves = False  # Marca si hay movimientos posibles desde la posición actual
+    # Cola de prioridad para nodos por visitar, usando (costo acumulado, posición actual, camino hasta aquí)
+    pq = [(0, x, y, [])]
+    visited = set()
 
-    for (dx, dy), dir in directions:
-        nx, ny = x + dx, y + dy
-        new_cost = current_cost + 1
+    while pq:
+        cost, cx, cy, current_path = heapq.heappop(pq)
+        print(current_path)
         
-        # Verificar límites, caminos válidos, y que no haya ciclos
-        if 0 <= nx < columnas and 0 <= ny < filas and mapa[ny, nx] == 0 and (nx, ny) not in visited:
-            # Solo agrega a la cola si es un movimiento válido
-            costs[(nx, ny)] = new_cost
-            heapq.heappush(priority_queue, (new_cost, nx, ny))
-            has_valid_moves = True  # Hay al menos un movimiento válido desde aquí
+        if (cx, cy) == (end_x, end_y):  # Se alcanza el nodo objetivo
+            path = current_path + [(cx, cy)]
+            return
+        
+        if (cx, cy) in visited:
+            continue
 
-    # Actualizar posición y dirección si hay movimiento válido
-    if has_valid_moves:
-        pos_x, pos_y = x, y
-        direccion = dir
-    else:
-        # Retrocede si no hay movimientos válidos desde esta posición
-        if backtrack_stack:
-            backtrack_stack.pop()  # Elimina la última posición
-            if backtrack_stack:  # Verifica que aún haya historial
-                pos_x, pos_y = backtrack_stack[-1]  # Regresa a la última posición disponible
+        visited.add((cx, cy))
+        
+        # Agrega posiciones vecinas válidas a la cola
+        for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # Izquierda, Derecha, Arriba, Abajo
+            nx, ny = cx + dx, cy + dy
+            if (0 <= nx < columnas and 0 <= ny < filas and 
+                mapa[ny, nx] == 0 and (nx, ny) not in visited):
+                heapq.heappush(pq, (cost + 1, nx, ny, current_path + [(cx, cy)]))
 
+def ucs_move():
+    global pos_x, pos_y, direccion, fin, path
+    
+    if fin:
+        return
+    
+    if not path:  # Si no hay un camino guardado, busca uno nuevo
+        find_path(pos_x, pos_y, salida_x, salida_y)
+    
+    if path:
+        # Tomar el siguiente paso en el camino y actualizar posición
+        next_pos = path.pop(0)
+        pos_x, pos_y = next_pos
+        # Actualizar dirección basada en el movimiento
+        dx, dy = next_pos[0] - pos_x, next_pos[1] - pos_y
+        if dx == 1:
+            direccion = 'derecha'
+        elif dx == -1:
+            direccion = 'izquierda'
+        elif dy == 1:
+            direccion = 'abajo'
+        elif dy == -1:
+            direccion = 'arriba'
+
+    # Verificar si se llegó a la meta
+    if (pos_x, pos_y) == (salida_x, salida_y):
+        fin = True
 """-------------------------------------------------
 Bucle principal del programa
 -------------------------------------------------"""
@@ -168,6 +188,7 @@ while running:
     # Llamar a la función de movimiento UCS continuamente si no se ha llegado a la meta
     if not fin:
         ucs_move()
+        
     
     # Verifica si el robot ha llegado a la posición de salida
     if not fin and pos_x == salida_x and pos_y == salida_y:

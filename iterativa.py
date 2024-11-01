@@ -59,7 +59,7 @@ failed_paths = set()  # Guarda caminos completos bloqueados
 decision_points = []  # Guarda puntos de decisión
 
 # Límite de profundidad
-profundidad_maxima = 15
+profundidad_maxima = 1
 
 
 """-------------------------------------------------
