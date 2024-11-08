@@ -31,9 +31,9 @@ fin_bg = pygame.transform.scale(fin_bg, (WIDTH, HEIGHT))
 # Cantidad de columnas y filas
 columnas, filas = 15, 15
 mapa = np.array([
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+    [1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
     [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
     [1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1],
     [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
@@ -50,9 +50,10 @@ mapa = np.array([
 
 
 # Posiciones
-pos_x, pos_y = 0, 0
+
 direccion = 'derecha'
-salida_x, salida_y = 11,5
+pos_x, pos_y = 1, 1
+salida_x, salida_y = 11, 5
 
 visited = set()  # Para registrar posiciones visitadas
 stack = [(pos_x, pos_y)]  # Pila para la búsqueda en profundidad y backtracking
@@ -145,6 +146,7 @@ while running:
     
     # Llamar a la función de movimiento DFS continuamente si no se ha llegado a la meta
     if not fin:
+        time.sleep(10)
         dfs_move()
     
     # Verifica si el robot ha llegado a la posición de salida
