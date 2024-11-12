@@ -1,4 +1,5 @@
 import numpy as np
+import time
 import graphviz
 from collections import deque
 
@@ -133,11 +134,11 @@ def limitada(x, y, camino, alt_max):
     # La idea es que se expanda el árbol hasta encontrar la meta con menor costo
     
     # Cada movimiento tiene un costo de 1
-    queue = deque([(x, y, [], 0)])
+    stack = [(x, y, [], 0)]
     visitados = set()
     
-    while queue:
-        x, y, camino, costo = queue.popleft()
+    while stack:
+        x, y, camino, profundidad = stack.pop()
         
         # Si está fuera de los límites o es una pared, continuamos con el siguiente nodo
         if x < 0 or x >= filas or y < 0 or y >= columnas or mapa[x][y] == 1:
@@ -145,70 +146,33 @@ def limitada(x, y, camino, alt_max):
         
         # Si encontramos la salida, registramos el camino
         if (x, y) == (salida_x, salida_y):
-            grafo.node(str((x, y)), shape='doublecircle', color='green', label=f"Salida: ({x}, {y})\nCosto total: {costo}")
+            grafo.node(str((x, y)), shape='doublecircle', color='green', label=f"Salida: ({x}, {y})")
             if camino:
-                grafo.edge(camino[-1], str((x, y)), label=f"Costo: {costo}")
+                grafo.edge(camino[-1], str((x, y)))
             return True
         
         # Marcar la celda como visitada
         mapa[x][y] = 1
-        grafo.node(str((x, y)), label=f"({x}, {y})\nCosto: {1}")
+        grafo.node(str((x, y)), label=f"({x}, {y})")
         if camino:
-            grafo.edge(camino[-1], str((x, y)), label=f"Costo: {costo}")
-        if alt_max <= 0:
-            break
+            grafo.edge(camino[-1], str((x, y)))
+        
         # Guardar el camino actual y explorar en direcciones: derecha, abajo, izquierda, arriba
         nuevo_camino = camino + [str((x, y))]
-        for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-            nx, ny = x + dx, y + dy
-            if (nx, ny) not in visitados:
-                visitados.add((nx, ny))
-                queue.append((nx, ny, nuevo_camino, costo + 1))
-        
-        alt_max -= 1
-    
-    # Mostrar el grafo construido hasta el momento
-    grafo.view()
+        if profundidad < alt_max:
+            for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                nx, ny = x + dx, y + dy
+                if (nx, ny) not in visitados:
+                    visitados.add((nx, ny))
+                    stack.append((nx, ny, nuevo_camino, profundidad + 1))
     return False
-def iterativa(x, y, camino, alt_max):
-    # El algoritmo de búsqueda iterativa, es una variante de la búsqueda por profundidad, pero con un límite de profundidad, es decir, se va a buscar la salida hasta cierto nivel de profundidad
-    
-    # La idea es que se expanda el árbol hasta encontrar la meta con menor costo
-    
-    # Cada movimiento tiene un costo de 1
-    queue = deque([(x, y, [], 0)])
-    visitados = set()
-    i = 0
-    while queue:
-        x, y, camino, costo = queue.popleft()
-        
-        # Si está fuera de los límites o es una pared, continuamos con el siguiente nodo
-        if x < 0 or x >= filas or y < 0 or y >= columnas or mapa[x][y] == 1:
-            continue
-        
-        # Si encontramos la salida, registramos el camino
-        if (x, y) == (salida_x, salida_y):
-            grafo.node(str((x, y)), shape='doublecircle', color='green', label=f"Salida: ({x}, {y})\nCosto total: {costo}")
-            if camino:
-                grafo.edge(camino[-1], str((x, y)), label=f"Costo: {costo}")
-            return True
-        
-        # Marcar la celda como visitada
-        mapa[x][y] = 1
-        grafo.node(str((x, y)), label=f"({x}, {y})\nCosto: {1}")
-        if camino:
-            grafo.edge(camino[-1], str((x, y)), label=f"Costo: {costo}")
-        if alt_max <= 0:
-            break
-        # Guardar el camino actual y explorar en direcciones: derecha, abajo, izquierda, arriba
-        nuevo_camino = camino + [str((x, y))]
-        for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-            nx, ny = x + dx, y + dy
-            if (nx, ny) not in visitados:
-                visitados.add((nx, ny))
-                queue.append((nx, ny, nuevo_camino, costo + 1))
-        
-        alt_max -= 1
+
+def iterativa(x, y, camino):
+    profundidad = 1
+    while not limitada(x, y, camino, profundidad):
+        time.sleep(1)
+        profundidad += 1
+
 def avara(x, y, camino):
     # El algoritmo de avara, se caracteriza por una nueva opción de búsqueda, en la que se va a buscar la salida con base en la heurística de la distancia de Manhattan
     
@@ -258,10 +222,11 @@ def avara(x, y, camino):
 
 # Ejecutar DFS desde la posición inicial
 # amplitud(pos_x, pos_y, [])
-# dfs(pos_x, pos_y, [])
+
 # costos(pos_x, pos_y, [])
-# limitada(pos_x, pos_y, [], 7)
-# iterativa(pos_x, pos_y, [], 7)
+dfs(pos_x,pos_y, [])
+limitada(pos_x, pos_y, [], 3)
+# iterativa(pos_x, pos_y, [])
 # avara(pos_x, pos_y, [])
 
 
