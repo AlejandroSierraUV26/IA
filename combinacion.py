@@ -32,7 +32,6 @@ def imprimir_arbol(arbol):
     for nodo in arbol:
         print(nodo, arbol[nodo])
 def dibujar_arbol(arbol, camino):
-    g = Graph('G', filename='arbol', format='svg')
     for nodo in arbol:
         if nodo in camino:
             g.node(str(nodo), color='red', style='filled')
@@ -70,35 +69,30 @@ def main():
     ])
     arbol_generado = construir_arbol((0, 0), mapa)
     # Inicia en (0, 0) y termina en (13, 13)
-    
-    camino_recodido = leer_camino_recorrido()
-    camino, visitados = amplitud((0, 0), (13, 13), arbol_generado, 2)
-    visitados = visitados.union(set(camino_recodido))
-    
-    
-    camino_recodido = leer_camino_recorrido()
-    camino, visitados = profundidad(camino_recodido[-1], (13, 13), arbol_generado, 2)
-    visitados = visitados.union(set(camino_recodido))
-    
-    
-    camino_recodido = leer_camino_recorrido()
-    camino, visitados = costo(camino_recodido[-1], (13, 13), arbol_generado, 2)
-    visitados = visitados.union(set(camino_recodido))
-    
-    
-    camino_recodido = leer_camino_recorrido()
-    camino, visitados = limitada(camino_recodido[-1], (13, 13), arbol_generado, 2)
-    visitados = visitados.union(set(camino_recodido))
-    
-    camino_recodido = leer_camino_recorrido()
-    camino, visitados = iterativa(camino_recodido[-1], (13, 13), arbol_generado, 2)
-    camino_recodido = visitados.union(set(camino_recodido))
-    
-    camino_recodido = leer_camino_recorrido()
-    camino, visitados = avara(camino_recodido[-1], (13, 13), arbol_generado, 20)
-    visitados = visitados.union(set(camino_recodido))
-    
+    inicio = (0 , 0)
+    final = (11, 2)
+    n = 15
+    sin_salida = set()
+    camino_recodido = [inicio]
+    for i in range(10):
+        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])    
+        print(algoritmo_aleatorio.__name__)
+        camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
+        visitados = visitados.union(set(camino_recodido))
+        sin_salida = sin_salida.union(set(sin_salida))
+        camino_recodido = leer_camino_recorrido()
+        if len(camino_recodido) == 1:
+            print("No hay camino")
+            print("Quedo en el nodo", camino_recodido[-1])
+            break                
+        if camino[-1] == final:
+            # Pintar el nodo de verde
+            g.node(str(final), color='green', style='filled')
+            break
+        
+        
 
+    
     dibujar_arbol(arbol_generado, visitados)
     
 
@@ -107,7 +101,7 @@ def main():
          
 
 
-def profundidad(inicio, final, arbol, n, camino_previo=None ):
+def profundidad(inicio, final, arbol, n, sin_salida, camino_previo=None ):
     # Sombrear el camino de inicio a final, que toma profundidad a partir del arbol
     # Prioridad : Derecha, Abajo, Izquierda, Arriba
     visitados = set(camino_previo) if camino_previo else set()
@@ -117,21 +111,26 @@ def profundidad(inicio, final, arbol, n, camino_previo=None ):
         if i == n:
             break
         nodo, camino = stack.pop()
+        if nodo in sin_salida:
+            continue
         if nodo == final:
-            return camino, visitados
+            
+            return camino, visitados, sin_salida
         if nodo not in visitados:
             visitados.add(nodo)
             guardar_camino(nodo)
             moved = False
             for hijo, _ in arbol.get(nodo, []):
-                if hijo not in visitados:
+                if hijo not in visitados and hijo not in sin_salida:
                     stack.append((hijo, camino + [hijo]))
                     moved = True
-            if not moved and camino:
-                camino.pop()
+            if not moved:
+                sin_salida.add(nodo)
+                if camino:
+                    camino.pop()
         i += 1
-    return camino, visitados
-def amplitud(inicio, final, arbol, altura_max):
+    return camino, visitados, sin_salida
+def amplitud(inicio, final, arbol, altura_max, sin_salida):
     # Sombrear el camino de inicio a final, que toma amplitud apartir del arbol
     # Prioridad : Derecha, Abajo, Izquierda, Arriba
         visitados = set()
@@ -140,18 +139,28 @@ def amplitud(inicio, final, arbol, altura_max):
         while queue:
             if i == altura_max:
                 break
+            
             nodo, camino = queue.popleft()
             if nodo == final:
-                return camino, visitados
+                
+                return camino, visitados, sin_salida
+            if nodo in sin_salida:
+                continue
             if nodo not in visitados:
                 visitados.add(nodo)
                 guardar_camino(nodo)
+                
+                moved = False
                 for hijo, _ in arbol.get(nodo, []):
-                    if hijo not in visitados:
+                    if hijo not in visitados and hijo not in sin_salida:
                         queue.append((hijo, camino + [hijo]))
+                        moved = True
+                        
+                if not moved:
+                    sin_salida.add(nodo)
             i += 1
-        return camino, visitados
-def costo(inicio, final, arbol, n):
+        return camino, visitados, sin_salida
+def costo(inicio, final, arbol, n, sin_salida):
     # Sombrear el camino de inicio a final, que toma costo apartir del arbol
     # Prioridad : Derecha, Abajo, Izquierda, Arriba
     visitados = set()
@@ -163,16 +172,20 @@ def costo(inicio, final, arbol, n):
         queue.sort()  # Ordenar la cola por costo
         costo, nodo, camino = queue.pop(0)
         if nodo == final:
-            return camino, visitados
+            
+            return camino, visitados, sin_salida
         if nodo not in visitados:
             visitados.add(nodo)
             guardar_camino(nodo)
+            moved = False
             for hijo, _ in arbol.get(nodo, []):
                 if hijo not in visitados:
                     queue.append((costo + 1, hijo, camino + [hijo]))
+                    moved = True
+                    
         i += 1
-    return camino, visitados
-def limitada(inicio, final, arbol, alt_max):
+    return camino, visitados, sin_salida
+def limitada(inicio, final, arbol, alt_max, sin_salida):
     # Sombrear el camino de inicio a final, que toma limitada apartir del arbol
     # Prioridad : Derecha, Abajo, Izquierda, Arriba
     visitados = set()
@@ -181,25 +194,48 @@ def limitada(inicio, final, arbol, alt_max):
     while stack:
         nodo, camino, profundidad = stack.pop()
         if nodo == final:
-            return camino, visitados
+            
+            return camino, visitados, sin_salida
+        if nodo in sin_salida:
+            continue
         if nodo not in visitados:
             visitados.add(nodo)
             guardar_camino(nodo)
+            moved = False
             if profundidad < alt_max:
                 for hijo, _ in arbol.get(nodo, []):
-                    if hijo not in visitados:
+                    if hijo not in visitados and hijo not in sin_salida:
                         stack.append((hijo, camino + [hijo], profundidad + 1))
-    return camino, visitados
-def iterativa(inicio, final, arbol, alt_max):
-    # Sombrear el camino de inicio a final, que toma iterativa apartir del arbol
-    # Prioridad : Derecha, Abajo, Izquierda, Arriba
-    for alt_max in range(1, alt_max + 1):
-        camino, visitados = limitada(inicio, final, arbol, alt_max)
-        if camino and camino[-1] == final:
-            print(alt_max)
-            return camino, visitados
-    return camino, visitados
-def avara(inicio, final, arbol, n):
+                        moved = True
+            if not moved:
+                sin_salida.add(nodo)
+                    
+    return camino, visitados, sin_salida
+def iterativa(inicio, final, arbol, alt_max, sin_salida):
+    visitados = set()
+    for i in range(alt_max):
+        stack = [(inicio, [inicio], 0)]
+        
+        while stack:
+            nodo, camino, profundidad = stack.pop()
+            if nodo == final:
+                
+                return camino, visitados, sin_salida
+            if nodo in sin_salida:
+                continue
+            if nodo not in visitados:
+                visitados.add(nodo)
+                guardar_camino(nodo)
+                moved = False
+                if profundidad < alt_max:
+                    for hijo, _ in arbol.get(nodo, []):
+                        if hijo not in visitados and hijo not in sin_salida:
+                            stack.append((hijo, camino + [hijo], profundidad + 1))
+                            moved = True
+                if not moved:
+                    sin_salida.add(nodo)
+    return camino, visitados, sin_salida          
+def avara(inicio, final, arbol, n, sin_salida):
     # Sombrear el camino de inicio a final, que toma avara apartir del arbol
     # Prioridad : Derecha, Abajo, Izquierda, Arriba
     # Definir la heurística de la distancia de Manhattan
@@ -212,23 +248,31 @@ def avara(inicio, final, arbol, n):
             break
         _, nodo, camino = heapq.heappop(queue)
         if nodo == final:
-            return camino, visitados
+            
+            return camino, visitados, sin_salida
+        if nodo in sin_salida:
+            continue
         if nodo not in visitados:
             visitados.add(nodo)
             guardar_camino(nodo)
+            moved = False
             for hijo, _ in arbol.get(nodo, []):
-                if hijo not in visitados:
+                if hijo not in visitados and hijo not in sin_salida:
                     heapq.heappush(queue, (dm(hijo[0], hijo[1]), hijo, camino + [hijo]))
+                    moved = True
+                    
+        if not moved:
+            sin_salida.add(nodo)
+
+                    
         i += 1
-    return set(camino), visitados
+    return visitados,set(camino), sin_salida
 def guardar_camino(nodo):
     with open("camino.txt", "a") as f:
         f.write(f"{nodo}\n")
 
 def leer_camino_recorrido():
     with open("camino.txt", "r") as f:
-        if not f.read():
-            return []
         f = f.read().splitlines()
         elem = []
         for linea in f:
@@ -237,5 +281,22 @@ def leer_camino_recorrido():
         
             
     return elem
-            
+
+g = Graph('G', filename='arbol', format='svg')      
+
+
+def dibujar_arbol_matplotlib(arbol, camino):
+    fig, ax = plt.subplots()
+    for nodo in arbol:
+        x, y = nodo
+        if nodo in camino:
+            ax.plot(x, y, 'ro')  # Nodo en el camino en rojo
+        else:
+            ax.plot(x, y, 'bo')  # Nodo normal en azul
+        for hijo, direccion in arbol[nodo]:
+            hx, hy = hijo
+            ax.plot([x, hx], [y, hy], 'k-')  # Conexión entre nodos en negro
+    plt.show()
+
+
 main()
