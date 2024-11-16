@@ -32,23 +32,33 @@ def imprimir_arbol(arbol):
     for nodo in arbol:
         print(nodo, arbol[nodo])
 def dibujar_arbol(arbol, camino):
+    G = nx.Graph()  # Crear un grafo vacío
+
+    # Agregar nodos y aristas al grafo
     for nodo in arbol:
-        if nodo in camino:
-            g.node(str(nodo), color='red', style='filled')
-        else:
-            g.node(str(nodo))
         for hijo, direccion in arbol[nodo]:
-            if direccion == (-1, 0):
-                direccion = 'Arriba'
-            elif direccion == (1, 0):
-                direccion = 'Abajo'
-            elif direccion == (0, -1):
-                direccion = 'Izquierda'
-            elif direccion == (0, 1):
-                direccion = 'Derecha'
-            
-            g.edge(str(nodo), str(hijo), label=str(direccion))
-    g.view()
+            G.add_edge(nodo, hijo, label=str(direccion))  # Agregar las aristas con las etiquetas
+
+    # Colorear los nodos del camino recorrido de rojo
+    color_map = []
+    for nodo in G.nodes():
+        if nodo in camino:
+            color_map.append('red')  # Nodo del camino en rojo
+        else:
+            color_map.append('skyblue')  # Resto de los nodos en azul claro
+
+    # Dibujo de la red
+    pos = nx.spring_layout(G, seed=42)  # Layout para los nodos
+    plt.figure(figsize=(12, 12))
+    nx.draw(G, pos, with_labels=True, node_color=color_map, node_size=500, font_size=12, font_weight='bold', edge_color='gray')
+
+    # Mostrar las etiquetas de las aristas (direcciones)
+    edge_labels = nx.get_edge_attributes(G, 'label')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+
+    plt.title("Árbol de Caminos")
+    plt.show()
+
 def main():
     mapa = np.array([
     [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -69,7 +79,7 @@ def main():
     ])
     arbol_generado = construir_arbol((0, 0), mapa)
     # Inicia en (0, 0) y termina en (13, 13)
-    inicio = (0 , 0)
+    inicio =(0, 0)
     final = (11, 2)
     n = 15
     sin_salida = set()
@@ -281,22 +291,6 @@ def leer_camino_recorrido():
         
             
     return elem
-
-g = Graph('G', filename='arbol', format='svg')      
-
-
-def dibujar_arbol_matplotlib(arbol, camino):
-    fig, ax = plt.subplots()
-    for nodo in arbol:
-        x, y = nodo
-        if nodo in camino:
-            ax.plot(x, y, 'ro')  # Nodo en el camino en rojo
-        else:
-            ax.plot(x, y, 'bo')  # Nodo normal en azul
-        for hijo, direccion in arbol[nodo]:
-            hx, hy = hijo
-            ax.plot([x, hx], [y, hy], 'k-')  # Conexión entre nodos en negro
-    plt.show()
 
 
 main()
