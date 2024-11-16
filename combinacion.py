@@ -1,6 +1,10 @@
 import numpy as np
+import pydot 
+import networkx as nx
+import matplotlib.pyplot as plt
 from graphviz import Graph
 from collections import deque
+from networkx.drawing.nx_pydot import graphviz_layout
 import heapq
 
 
@@ -31,56 +35,39 @@ def construir_arbol(inicio, mapa):
 def imprimir_arbol(arbol):
     for nodo in arbol:
         print(nodo, arbol[nodo])
-def dibujar_arbol(arbol, camino):
-    G = nx.Graph()  # Crear un grafo vacío
-
-    # Agregar nodos y aristas al grafo
+def dibujar_arbol(arbol, camino, inicio, final):
+    
     for nodo in arbol:
-        for hijo, direccion in arbol[nodo]:
-            G.add_edge(nodo, hijo, label=str(direccion))  # Agregar las aristas con las etiquetas
+        T.add_node(str(nodo))
+        for hijo, _ in arbol[nodo]:
+            T.add_edge(str(nodo), str(hijo))
 
-    # Colorear los nodos del camino recorrido de rojo
-    color_map = []
-    for nodo in G.nodes():
-        if nodo in camino:
-            color_map.append('red')  # Nodo del camino en rojo
+    pos = graphviz_layout(T, prog="dot")
+    node_colors = []
+    for node in T.nodes():
+        node_eval = eval(node)
+        if node_eval == inicio:
+            node_colors.append('yellow')
+        elif node_eval == final:
+            node_colors.append('green')
+        elif node_eval in camino:
+            node_colors.append('red')
         else:
-            color_map.append('skyblue')  # Resto de los nodos en azul claro
-
-    # Dibujo de la red
-    pos = nx.spring_layout(G, seed=42)  # Layout para los nodos
-    plt.figure(figsize=(12, 12))
-    nx.draw(G, pos, with_labels=True, node_color=color_map, node_size=500, font_size=12, font_weight='bold', edge_color='gray')
-
-    # Mostrar las etiquetas de las aristas (direcciones)
-    edge_labels = nx.get_edge_attributes(G, 'label')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-
-    plt.title("Árbol de Caminos")
+            node_colors.append('blue')
+    nx.draw(T, pos, with_labels=True, node_size=2000, node_color=node_colors)
     plt.show()
-
 def main():
     mapa = np.array([
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
-    [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-    [1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1],
-    [1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-    [1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    [1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+        [0, 1, 1, 1, 1],
+        [0, 0, 0, 0, 0],
+        [0, 1, 0, 1, 0],
+        [0, 0, 0, 1, 0],
+        [1, 0, 0, 1, 0]
     ])
     arbol_generado = construir_arbol((0, 0), mapa)
     # Inicia en (0, 0) y termina en (13, 13)
     inicio =(0, 0)
-    final = (11, 2)
+    final = (4, 4)
     n = 15
     sin_salida = set()
     camino_recodido = [inicio]
@@ -96,14 +83,13 @@ def main():
             print("Quedo en el nodo", camino_recodido[-1])
             break                
         if camino[-1] == final:
-            # Pintar el nodo de verde
-            g.node(str(final), color='green', style='filled')
+            # Pintar el nodo final
             break
         
         
 
     
-    dibujar_arbol(arbol_generado, visitados)
+    dibujar_arbol(arbol_generado, visitados, inicio, final)
     
 
     with open("camino.txt", "w") as f:
@@ -292,5 +278,5 @@ def leer_camino_recorrido():
             
     return elem
 
-
+T = nx.DiGraph()
 main()
