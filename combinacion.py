@@ -2,6 +2,8 @@ import numpy as np
 import pydot 
 import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import time 
 from graphviz import Graph
 from collections import deque
 from networkx.drawing.nx_pydot import graphviz_layout
@@ -32,47 +34,68 @@ def construir_arbol(inicio, mapa):
     
 
     return arbol
+
 def imprimir_arbol(arbol):
     for nodo in arbol:
         print(nodo, arbol[nodo])
 def dibujar_arbol(arbol, camino, inicio, final):
     
+
+    # Construir el grafo
     for nodo in arbol:
         T.add_node(str(nodo))
         for hijo, _ in arbol[nodo]:
             T.add_edge(str(nodo), str(hijo))
 
     pos = graphviz_layout(T, prog="dot")
-    node_colors = []
-    for node in T.nodes():
-        node_eval = eval(node)
-        if node_eval == inicio:
-            node_colors.append('yellow')
-        elif node_eval == final:
-            node_colors.append('green')
-        elif node_eval in camino:
-            node_colors.append('red')
-        else:
-            node_colors.append('blue')
-    nx.draw(T, pos, with_labels=True, node_size=2000, node_color=node_colors)
+    
+    # Activar modo interactivo
+    plt.ion()
+    fig, ax = plt.subplots()
+    camino = list(camino)
+    camino.sort()
+    # Inicializar los colores de los nodos
+    node_colors_dict = {node: 'blue' for node in T.nodes()}
+    node_colors_dict[str(inicio)] = 'yellow'
+    node_colors_dict[str(final)] = 'green'
+
+    # Dibujar el árbol inicial
+    for nodo_actual in camino:
+        # Actualizar el color del nodo actual
+        node_colors_dict[str(nodo_actual)] = 'red'
+
+        # Construir la lista de colores para el grafo
+        node_colors = [node_colors_dict[node] for node in T.nodes()]
+
+        # Dibujar el grafo
+        ax.clear()  # Limpiar el gráfico anterior
+        nx.draw(T, pos, with_labels=True, node_size=500, node_color=node_colors, ax=ax, arrowsize=20, font_size=10, font_color='white', font_weight='bold', edge_color='black', width=2, edgecolors='black', linewidths=1.5, alpha=0.7, connectionstyle='arc3, rad = 0.1', style='dashed', edge_cmap=plt.cm.Blues, edge_vmin=0, edge_vmax=1)
+        plt.pause(1)  # Pausa para visualizar el cambio
+
+    # Desactivar modo interactivo
+    plt.ioff()
     plt.show()
 def main():
     mapa = np.array([
-        [0, 1, 1, 1, 1],
-        [0, 0, 0, 0, 0],
-        [0, 1, 0, 1, 0],
-        [0, 0, 0, 1, 0],
-        [1, 0, 0, 1, 0]
+    [0, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 0, 1, 1, 0, 1, 0, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [1, 1, 1, 1, 0, 1, 0, 1, 0],
+    [1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 1, 1, 0]
     ])
     arbol_generado = construir_arbol((0, 0), mapa)
     # Inicia en (0, 0) y termina en (13, 13)
     inicio =(0, 0)
-    final = (4, 4)
+    final = (8, 8)
     n = 15
     sin_salida = set()
     camino_recodido = [inicio]
     for i in range(10):
-        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])    
+        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])  
         print(algoritmo_aleatorio.__name__)
         camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
         visitados = visitados.union(set(camino_recodido))
