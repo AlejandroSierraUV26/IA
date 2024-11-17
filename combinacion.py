@@ -4,6 +4,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time 
+import matplotlib.animation as animation
+import time 
 from graphviz import Graph
 from collections import deque
 from networkx.drawing.nx_pydot import graphviz_layout
@@ -36,6 +38,7 @@ def construir_arbol(inicio, mapa):
     
 
     return arbol
+
 def imprimir_arbol(arbol):
     for nodo in arbol:
         print(nodo, arbol[nodo])
@@ -53,7 +56,8 @@ def dibujar_arbol(arbol, camino, inicio, final):
     # Activar modo interactivo
     plt.ion()
     fig, ax = plt.subplots()
-
+    camino = list(camino)
+    camino.sort()
     # Inicializar los colores de los nodos
     node_colors_dict = {node: 'blue' for node in T.nodes()}
     node_colors_dict[str(inicio)] = 'yellow'
@@ -65,12 +69,10 @@ def dibujar_arbol(arbol, camino, inicio, final):
 
         # Construir la lista de colores para el grafo
         node_colors = [node_colors_dict[node] for node in T.nodes()]
-    
 
         # Dibujar el grafo
         ax.clear()  # Limpiar el gráfico anterior
-        # La distancia minima de los nodos debe ser 1
-        nx.draw(T, pos, with_labels=True, node_size=500, node_color=node_colors, ax=ax, arrowsize=20, font_size=10, font_color='white', font_weight='bold', edge_color='black', width=2, edgecolors='black', linewidths=1.5, alpha=0.7, connectionstyle='arc3, rad = 0.1', style='dashed', edge_style='dashed', edge_cmap=plt.cm.Blues, edge_vmin=0, edge_vmax=1, )
+        nx.draw(T, pos, with_labels=True, node_size=500, node_color=node_colors, ax=ax, arrowsize=20, font_size=10, font_color='white', font_weight='bold', edge_color='black', width=2, edgecolors='black', linewidths=1.5, alpha=0.7, connectionstyle='arc3, rad = 0.1', style='dashed', edge_cmap=plt.cm.Blues, edge_vmin=0, edge_vmax=1)
         plt.pause(1)  # Pausa para visualizar el cambio
 
     # Desactivar modo interactivo
@@ -87,7 +89,7 @@ def main():
     sin_salida = set()
     camino_recodido = [inicio]
     for i in range(10):
-        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])    
+        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])  
         print(algoritmo_aleatorio.__name__)
         camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
         visitados = visitados.union(set(camino_recodido))
