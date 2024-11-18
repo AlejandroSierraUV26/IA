@@ -84,11 +84,11 @@ def main():
     n = leer_n()
     sin_salida = set()
     camino_recodido = [inicio]
-    for i in range(10):
+    for i in range(15):
         algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])  
         print(algoritmo_aleatorio.__name__)
         camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
-        visitados = visitados.union(set(camino_recodido))
+        visitados = list(dict.fromkeys(camino_recodido + list(visitados)))
         sin_salida = sin_salida.union(set(sin_salida))
         camino_recodido = leer_camino_recorrido()
         if len(camino_recodido) == 1:
