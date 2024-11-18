@@ -64,9 +64,7 @@ def draw_grid():
             pygame.draw.rect(screen, color, (col * cell_size + offset_x, row * cell_size + offset_y, cell_size, cell_size))
             pygame.draw.rect(screen, (200, 200, 200), (col * cell_size + offset_x, row * cell_size + offset_y, cell_size, cell_size), 1)
 
-def obtener_lab_matrix():
-    return grid
-    
+
 # ======================================================================
 pygame.init()
 width, height = 700, 700
@@ -93,6 +91,7 @@ cell_size = 35
 
 offset_x = (700 - cols * cell_size) // 2
 offset_y = (700 - rows * cell_size) // 2
+# sirve para centrar la cuadrícula verticalmente
 
 
 grid = [[1 for _ in range(cols)] for _ in range(rows)]  # Inicializar como obstáculos

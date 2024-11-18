@@ -33,10 +33,6 @@ def construir_arbol(inicio, mapa):
             frontera.append(((x, y), camino + [(x, y)]))
             arbol[nodo].append(((x, y), (dx, dy)))
         
-    
-    
-    
-
     return arbol
 
 def imprimir_arbol(arbol):
@@ -260,6 +256,7 @@ def avara(inicio, final, arbol, n, sin_salida):
         if i == n:
             break
         _, nodo, camino = heapq.heappop(queue)
+        """Pop the smallest item off the heap, maintaining the heap invariant."""
         if nodo == final:
             
             return camino, visitados, sin_salida
@@ -272,6 +269,7 @@ def avara(inicio, final, arbol, n, sin_salida):
             for hijo, _ in arbol.get(nodo, []):
                 if hijo not in visitados and hijo not in sin_salida:
                     heapq.heappush(queue, (dm(hijo[0], hijo[1]), hijo, camino + [hijo]))
+                    """Push item onto heap, maintaining the heap invariant."""
                     moved = True
                     
         if not moved:
