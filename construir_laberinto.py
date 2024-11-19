@@ -11,7 +11,7 @@ def generate_random_start_end():
         end_pos = (random.randint(0, rows-1), random.randint(0, cols-1))
         
         # Asegurarse de que el inicio y fin estén lo suficientemente alejados
-        if manhattan_distance(start_pos, end_pos) >= 6:
+        if manhattan_distance(start_pos, end_pos) >= 3:
             break
         
 def get_valid_neighbors(row, col):
@@ -85,7 +85,7 @@ text_color = (255, 255, 255)  # Blanco
 
 title_text = font.render('Modifique el Lab', True, text_color)
 
-rows, cols = 10, 10  # Cuadrícula de 10x10
+rows, cols = 5, 5  # Cuadrícula de 10x10
 cell_size = 35
 
 

@@ -85,7 +85,7 @@ def main():
     sin_salida = set()
     camino_recodido = [inicio]
     for i in range(15):
-        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])  
+        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa, avara])  
         print(algoritmo_aleatorio.__name__)
         camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
         visitados = list(dict.fromkeys(camino_recodido + list(visitados)))
@@ -94,7 +94,7 @@ def main():
         if len(camino_recodido) == 1:
             print("No hay camino")
             print("Quedo en el nodo", camino_recodido[-1])
-            break                
+            break             
         if camino[-1] == final:
             # Pintar el nodo final
             break
@@ -256,6 +256,7 @@ def avara(inicio, final, arbol, n, sin_salida):
         if i == n:
             break
         _, nodo, camino = heapq.heappop(queue)
+
         """Pop the smallest item off the heap, maintaining the heap invariant."""
         if nodo == final:
             
@@ -277,7 +278,7 @@ def avara(inicio, final, arbol, n, sin_salida):
 
                     
         i += 1
-    return visitados,set(camino), sin_salida
+    return list(visitados),set(camino), sin_salida
 def guardar_camino(nodo):
     with open("camino.txt", "a") as f:
         f.write(f"{nodo}\n")
