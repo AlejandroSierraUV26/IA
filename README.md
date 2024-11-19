@@ -10,7 +10,7 @@ Se tendrá en cuenta lo siguiente:
 
 - Se hará implementación de una interfaz gráfica en donde se pueda observar el nombre de la estrategia seleccionada y el cómo se va expandiendo el arbol.
 
-- Luego de n expansiaones, ahora la búsqueda se hará por otra de las 5 estrategias (no se puede repetir una estrategia que ya haa sido seleccionada anteriormente. Seguirá así hasta que las 6 estrategias se hayan aplicado o se haya terminado ya de encontrar al ratón.
+- Luego de n expansiaones, ahora la búsqueda se hará por otra de las 5 estrategias.
 
 - Si no se encontró una solución luego de explorar todas las estrategias, el algoritmo se detendrá e indicará que no se ha encontrado solución alguna.
 
