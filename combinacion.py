@@ -84,8 +84,8 @@ def main():
     n = leer_n()
     sin_salida = set()
     camino_recodido = [inicio]
-    for i in range(15):
-        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa, avara])  
+    for i in range(30):
+        algoritmo_aleatorio = np.random.choice([limitada,  iterativa,profundidad, amplitud, costo, avara])  
         print(algoritmo_aleatorio.__name__)
         camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
         visitados = list(dict.fromkeys(camino_recodido + list(visitados)))
@@ -213,11 +213,9 @@ def limitada(inicio, final, arbol, alt_max, sin_salida):
             moved = False
             if profundidad < alt_max:
                 for hijo, _ in arbol.get(nodo, []):
-                    if hijo not in visitados and hijo not in sin_salida:
+                    if hijo not in visitados:
                         stack.append((hijo, camino + [hijo], profundidad + 1))
                         moved = True
-            if not moved:
-                sin_salida.add(nodo)
                     
     return camino, visitados, sin_salida
 def iterativa(inicio, final, arbol, alt_max, sin_salida):
@@ -238,11 +236,10 @@ def iterativa(inicio, final, arbol, alt_max, sin_salida):
                 moved = False
                 if profundidad < alt_max:
                     for hijo, _ in arbol.get(nodo, []):
-                        if hijo not in visitados and hijo not in sin_salida:
+                        if hijo not in visitados :
                             stack.append((hijo, camino + [hijo], profundidad + 1))
                             moved = True
-                if not moved:
-                    sin_salida.add(nodo)
+
     return camino, visitados, sin_salida          
 def avara(inicio, final, arbol, n, sin_salida):
     # Sombrear el camino de inicio a final, que toma avara apartir del arbol
