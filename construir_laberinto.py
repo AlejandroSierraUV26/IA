@@ -85,7 +85,7 @@ text_color = (255, 255, 255)  # Blanco
 
 title_text = font.render('Modifique el Lab', True, text_color)
 
-rows, cols = 5, 5  # Cuadrícula de 10x10
+rows, cols = 8, 8  # Cuadrícula de 10x10
 cell_size = 35
 
 
