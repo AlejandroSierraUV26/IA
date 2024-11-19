@@ -84,7 +84,7 @@ def main():
     n = leer_n()
     sin_salida = set()
     camino_recodido = [inicio]
-    for i in range(30):
+    while True:
         algoritmo_aleatorio = np.random.choice([limitada,  iterativa,profundidad, amplitud, costo, avara])  
         print(algoritmo_aleatorio.__name__)
         camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
