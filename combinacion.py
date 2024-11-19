@@ -33,10 +33,6 @@ def construir_arbol(inicio, mapa):
             frontera.append(((x, y), camino + [(x, y)]))
             arbol[nodo].append(((x, y), (dx, dy)))
         
-    
-    
-    
-
     return arbol
 
 def imprimir_arbol(arbol):
@@ -88,17 +84,17 @@ def main():
     n = leer_n()
     sin_salida = set()
     camino_recodido = [inicio]
-    for i in range(10):
-        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa])  
+    for i in range(15):
+        algoritmo_aleatorio = np.random.choice([profundidad, amplitud, costo, limitada, iterativa, avara])  
         print(algoritmo_aleatorio.__name__)
         camino, visitados, sin_salida = algoritmo_aleatorio(camino_recodido[-1], final, arbol_generado, n, sin_salida)
-        visitados = visitados.union(set(camino_recodido))
+        visitados = list(dict.fromkeys(camino_recodido + list(visitados)))
         sin_salida = sin_salida.union(set(sin_salida))
         camino_recodido = leer_camino_recorrido()
         if len(camino_recodido) == 1:
             print("No hay camino")
             print("Quedo en el nodo", camino_recodido[-1])
-            break                
+            break             
         if camino[-1] == final:
             # Pintar el nodo final
             break
@@ -260,6 +256,8 @@ def avara(inicio, final, arbol, n, sin_salida):
         if i == n:
             break
         _, nodo, camino = heapq.heappop(queue)
+
+        """Pop the smallest item off the heap, maintaining the heap invariant."""
         if nodo == final:
             
             return camino, visitados, sin_salida
@@ -272,6 +270,7 @@ def avara(inicio, final, arbol, n, sin_salida):
             for hijo, _ in arbol.get(nodo, []):
                 if hijo not in visitados and hijo not in sin_salida:
                     heapq.heappush(queue, (dm(hijo[0], hijo[1]), hijo, camino + [hijo]))
+                    """Push item onto heap, maintaining the heap invariant."""
                     moved = True
                     
         if not moved:
@@ -279,7 +278,7 @@ def avara(inicio, final, arbol, n, sin_salida):
 
                     
         i += 1
-    return visitados,set(camino), sin_salida
+    return list(visitados),set(camino), sin_salida
 def guardar_camino(nodo):
     with open("camino.txt", "a") as f:
         f.write(f"{nodo}\n")

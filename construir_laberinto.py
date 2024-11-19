@@ -11,7 +11,7 @@ def generate_random_start_end():
         end_pos = (random.randint(0, rows-1), random.randint(0, cols-1))
         
         # Asegurarse de que el inicio y fin estén lo suficientemente alejados
-        if manhattan_distance(start_pos, end_pos) >= 6:
+        if manhattan_distance(start_pos, end_pos) >= 3:
             break
         
 def get_valid_neighbors(row, col):
@@ -64,9 +64,7 @@ def draw_grid():
             pygame.draw.rect(screen, color, (col * cell_size + offset_x, row * cell_size + offset_y, cell_size, cell_size))
             pygame.draw.rect(screen, (200, 200, 200), (col * cell_size + offset_x, row * cell_size + offset_y, cell_size, cell_size), 1)
 
-def obtener_lab_matrix():
-    return grid
-    
+
 # ======================================================================
 pygame.init()
 width, height = 700, 700
@@ -87,12 +85,13 @@ text_color = (255, 255, 255)  # Blanco
 
 title_text = font.render('Modifique el Lab', True, text_color)
 
-rows, cols = 10, 10  # Cuadrícula de 10x10
+rows, cols = 5, 5  # Cuadrícula de 10x10
 cell_size = 35
 
 
 offset_x = (700 - cols * cell_size) // 2
 offset_y = (700 - rows * cell_size) // 2
+# sirve para centrar la cuadrícula verticalmente
 
 
 grid = [[1 for _ in range(cols)] for _ in range(rows)]  # Inicializar como obstáculos
